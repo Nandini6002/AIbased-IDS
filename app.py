@@ -9,7 +9,6 @@ from flask import (
 
 import sqlite3
 import secrets
-import os
 
 from flask_login import (
 
@@ -33,9 +32,9 @@ app = Flask(__name__)
 
 app.secret_key = "supersecretkey"
 
-# ---------------- DATABASE SETUP ----------------
+# ---------------- DATABASE INIT ----------------
 
-if not os.path.exists("ids.db"):
+def init_db():
 
     conn = sqlite3.connect("ids.db")
 
@@ -43,7 +42,7 @@ if not os.path.exists("ids.db"):
 
     cursor.execute("""
 
-    CREATE TABLE users (
+    CREATE TABLE IF NOT EXISTS users (
 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         email TEXT,
@@ -57,7 +56,7 @@ if not os.path.exists("ids.db"):
 
     cursor.execute("""
 
-    CREATE TABLE logs (
+    CREATE TABLE IF NOT EXISTS logs (
 
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER,
@@ -76,6 +75,8 @@ if not os.path.exists("ids.db"):
     conn.commit()
 
     conn.close()
+
+init_db()
 
 # ---------------- LOGIN MANAGER ----------------
 
@@ -550,101 +551,6 @@ def stats():
         "attacks": attacks
 
     })
-
-# ---------------- TOP ATTACKERS ----------------
-
-@app.route("/top_attackers")
-@login_required
-def top_attackers():
-
-    conn = sqlite3.connect("ids.db")
-
-    cursor = conn.cursor()
-
-    cursor.execute("""
-
-    SELECT
-    source_ip,
-    COUNT(*) as total
-
-    FROM logs
-
-    WHERE status='Attack Detected'
-    AND user_id=?
-
-    GROUP BY source_ip
-
-    ORDER BY total DESC
-
-    LIMIT 5
-
-    """, (current_user.id,))
-
-    rows = cursor.fetchall()
-
-    conn.close()
-
-    attackers = []
-
-    for row in rows:
-
-        attackers.append({
-
-            "ip": row[0],
-            "count": row[1]
-
-        })
-
-    return jsonify(attackers)
-
-# ---------------- GET PACKETS ----------------
-
-@app.route("/get_packets")
-@login_required
-def get_packets():
-
-    conn = sqlite3.connect("ids.db")
-
-    cursor = conn.cursor()
-
-    cursor.execute("""
-
-    SELECT
-    source_ip,
-    destination_ip,
-    protocol,
-    packet_size,
-    status
-
-    FROM logs
-
-    WHERE user_id=?
-
-    ORDER BY id DESC
-
-    LIMIT 50
-
-    """, (current_user.id,))
-
-    rows = cursor.fetchall()
-
-    conn.close()
-
-    packets = []
-
-    for row in rows:
-
-        packets.append({
-
-            "source_ip": row[0],
-            "destination_ip": row[1],
-            "protocol": row[2],
-            "packet_size": row[3],
-            "status": row[4]
-
-        })
-
-    return jsonify(packets)
 
 # ---------------- MAIN ----------------
 
