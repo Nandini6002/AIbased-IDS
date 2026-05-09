@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>AI IDS Dashboard</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#020617;
+            color:white;
+            font-family:Arial;
+        }
+
+        .sidebar{
+
+            position:fixed;
+
+            width:250px;
+            height:100vh;
+
+            background:#111827;
+
+            padding-top:30px;
+
+            display:flex;
+
+            flex-direction:column;
+        }
+
+        .logo{
+
+            text-align:center;
+
+            font-size:28px;
+
+            color:#00ff99;
+
+            margin-bottom:40px;
+
+            font-weight:bold;
+        }
+
+        .sidebar a{
+
+            display:block;
+
+            padding:18px 30px;
+
+            color:white;
+
+            text-decoration:none;
+
+            transition:0.3s;
+        }
+
+        .sidebar a:hover{
+
+            background:#00ff99;
+
+            color:black;
+        }
+
+        .logout-btn{
+
+            margin-top:auto;
+
+            background:#ff4d4d;
+
+            color:white !important;
+
+            border-radius:10px;
+
+            text-align:center;
+
+            width:80%;
+
+            margin-left:10%;
+
+            margin-bottom:30px;
+        }
+
+        .logout-btn:hover{
+
+            background:#ff1a1a !important;
+
+            color:white !important;
+        }
+
+        .main{
+
+            margin-left:250px;
+
+            padding:30px;
+        }
+
+        .topbar{
+
+            display:flex;
+
+            justify-content:space-between;
+
+            align-items:center;
+
+            margin-bottom:30px;
+        }
+
+        .title{
+
+            font-size:40px;
+
+            color:#00ff99;
+        }
+
+        .cards{
+
+            display:flex;
+
+            gap:25px;
+
+            flex-wrap:wrap;
+        }
+
+        .card{
+
+            flex:1;
+
+            min-width:250px;
+
+            background:#111827;
+
+            padding:25px;
+
+            border-radius:20px;
+
+            box-shadow:0 0 20px rgba(0,255,153,0.15);
+        }
+
+        .card h2{
+
+            color:#94a3b8;
+
+            margin-bottom:20px;
+        }
+
+        .number{
+
+            font-size:50px;
+
+            font-weight:bold;
+        }
+
+        #normal{
+            color:#00ff99;
+        }
+
+        #attacks{
+            color:#ff4d4d;
+        }
+
+        .chart-box{
+
+            margin-top:40px;
+
+            background:#111827;
+
+            padding:20px;
+
+            border-radius:20px;
+
+            width:500px;
+
+            height:400px;
+        }
+
+        .logs{
+
+            margin-top:40px;
+
+            background:#111827;
+
+            padding:20px;
+
+            border-radius:20px;
+        }
+
+        .logs ul{
+
+            list-style:none;
+        }
+
+        .logs li{
+
+            background:#1f2937;
+
+            margin:10px 0;
+
+            padding:15px;
+
+            border-left:5px solid #00ff99;
+
+            border-radius:5px;
+        }
+
+        .attackers-box{
+
+            margin-top:40px;
+
+            background:#111827;
+
+            padding:20px;
+
+            border-radius:20px;
+
+            box-shadow:0 0 20px rgba(255,0,0,0.15);
+        }
+
+        .attacker{
+
+            background:#1e293b;
+
+            margin:10px 0;
+
+            padding:15px;
+
+            border-left:5px solid red;
+
+            border-radius:10px;
+
+            font-size:18px;
+        }
+
+        .system-status{
+
+            margin-top:20px;
+
+            color:#00ff99;
+
+            font-size:18px;
+
+            font-weight:bold;
+        }
+
+        #clock{
+
+            margin-top:10px;
+
+            font-size:20px;
+
+            color:#94a3b8;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+
+        AI IDS
+
+    </div>
+
+    <a href="/">Dashboard</a>
+    <a href="/logs">Logs</a>
+    <a href="/packets">Packets</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/settings">Settings</a>
+    <a href="/about">About</a>
+
+    <a href="/logout" class="logout-btn">
+
+        Logout
+
+    </a>
+
+</div>
+
+<div class="main">
+
+    <div class="topbar">
+
+        <div class="title">
+
+            Security Dashboard
+
+        </div>
+
+    </div>
+
+    <div class="system-status">
+
+        🟢 AI IDS ACTIVE
+
+    </div>
+
+    <div id="clock"></div>
+
+    <div class="cards">
+
+        <div class="card">
+
+            <h2>Normal Traffic</h2>
+
+            <div class="number" id="normal">0</div>
+
+        </div>
+
+        <div class="card">
+
+            <h2>Detected Attacks</h2>
+
+            <div class="number" id="attacks">0</div>
+
+        </div>
+
+    </div>
+
+    <div class="chart-box">
+
+        <canvas id="chart"></canvas>
+
+    </div>
+
+    <div class="attackers-box">
+
+        <h2>
+            Top Attacker IPs
+        </h2>
+
+        <div id="attackers">
+
+        </div>
+
+    </div>
+
+    <div class="logs">
+
+        <h2>Live Security Logs</h2>
+
+        <ul id="logs"></ul>
+
+    </div>
+
+</div>
+
+<script>
+
+const ctx = document.getElementById('chart');
+
+const chart = new Chart(ctx, {
+
+    type:'doughnut',
+
+    data:{
+
+        labels:['Normal','Attacks'],
+
+        datasets:[{
+
+            data:[0,0],
+
+            backgroundColor:[
+                '#00ff99',
+                '#ff4d4d'
+            ],
+
+            borderWidth:0
+        }]
+    },
+
+    options:{
+
+        responsive:true,
+
+        maintainAspectRatio:false
+    }
+});
+
+async function fetchStats(){
+
+    try{
+
+        const response = await fetch('/stats');
+
+        const data = await response.json();
+
+        document.getElementById("normal").innerText = data.normal;
+
+        document.getElementById("attacks").innerText = data.attacks;
+
+        chart.data.datasets[0].data = [
+            data.normal,
+            data.attacks
+        ];
+
+        chart.update();
+
+        const logs = document.getElementById("logs");
+
+        logs.innerHTML = "";
+
+        logs.innerHTML = `
+        <li>Normal Traffic Monitoring Active</li>
+        <li>Attack Detection Engine Running</li>
+        <li>AI Packet Analyzer Enabled</li>
+        `;
+
+    }
+
+    catch(error){
+
+        console.log(error);
+
+    }
+}
+
+async function fetchAttackers(){
+
+    const response = await fetch('/top_attackers');
+
+    const data = await response.json();
+
+    const attackersDiv =
+    document.getElementById("attackers");
+
+    attackersDiv.innerHTML = "";
+
+    data.forEach(attacker => {
+
+        let div = document.createElement("div");
+
+        div.classList.add("attacker");
+
+        div.innerHTML = `
+
+        ${attacker.ip}
+
+        →
+
+        ${attacker.count} attacks
+
+        `;
+
+        attackersDiv.appendChild(div);
+
+    });
+
+}
+
+function updateClock(){
+
+    const now = new Date();
+
+    document.getElementById("clock")
+    .innerText =
+    now.toLocaleTimeString();
+
+}
+
+setInterval(fetchStats, 2000);
+
+setInterval(fetchAttackers, 3000);
+
+setInterval(updateClock,1000);
+
+fetchStats();
+
+fetchAttackers();
+
+updateClock();
+
+</script>
+
+</body>
+
+</html>

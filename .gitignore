@@ -1,0 +1,5 @@
+venv/
+__pycache__/
+*.pyc
+database/ids.db
+.env

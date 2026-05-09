@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>About AI IDS</title>
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+        }
+
+        body{
+            background:#020617;
+            color:white;
+            font-family:Arial;
+        }
+
+        .sidebar{
+
+            position:fixed;
+
+            width:250px;
+            height:100vh;
+
+            background:#111827;
+
+            padding-top:30px;
+        }
+
+        .logo{
+
+            text-align:center;
+
+            font-size:28px;
+
+            color:#00ff99;
+
+            margin-bottom:40px;
+
+            font-weight:bold;
+        }
+
+        .sidebar a{
+
+            display:block;
+
+            padding:18px 30px;
+
+            color:white;
+
+            text-decoration:none;
+
+            transition:0.3s;
+        }
+
+        .sidebar a:hover{
+
+            background:#00ff99;
+
+            color:black;
+        }
+
+        .main{
+
+            margin-left:250px;
+
+            padding:40px;
+        }
+
+        .title{
+
+            text-align:center;
+
+            font-size:50px;
+
+            color:#00ff99;
+
+            margin-bottom:40px;
+
+            text-shadow:0 0 20px rgba(0,255,153,0.5);
+        }
+
+        .section{
+
+            background:#111827;
+
+            padding:30px;
+
+            margin-bottom:30px;
+
+            border-radius:20px;
+
+            box-shadow:0 0 20px rgba(0,255,153,0.12);
+
+            transition:0.3s;
+        }
+
+        .section:hover{
+
+            transform:translateY(-5px);
+
+            box-shadow:0 0 25px rgba(0,255,153,0.25);
+        }
+
+        .section h2{
+
+            color:#00ff99;
+
+            margin-bottom:20px;
+
+            font-size:30px;
+        }
+
+        .section p{
+
+            color:#cbd5e1;
+
+            line-height:1.9;
+
+            font-size:17px;
+        }
+
+        .tech-grid{
+
+            display:grid;
+
+            grid-template-columns:repeat(auto-fit,minmax(200px,1fr));
+
+            gap:20px;
+
+            margin-top:20px;
+        }
+
+        .tech-card{
+
+            background:#1e293b;
+
+            padding:20px;
+
+            border-radius:15px;
+
+            text-align:center;
+
+            transition:0.3s;
+        }
+
+        .tech-card:hover{
+
+            transform:scale(1.05);
+
+            background:#00ff99;
+
+            color:black;
+        }
+
+        .tech-card h3{
+
+            margin-bottom:10px;
+        }
+
+        .features{
+
+            margin-top:20px;
+        }
+
+        .features li{
+
+            margin:12px 0;
+
+            color:#cbd5e1;
+
+            font-size:17px;
+        }
+
+        .footer{
+
+            text-align:center;
+
+            margin-top:40px;
+
+            color:#64748b;
+
+            font-size:16px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="sidebar">
+
+    <div class="logo">
+
+        AI IDS
+
+    </div>
+
+    <a href="/">Dashboard</a>
+    <a href="/logs">Logs</a>
+    <a href="/packets">Packets</a>
+    <a href="/analytics">Analytics</a>
+    <a href="/settings">Settings</a>
+    <a href="/about">About</a>
+
+</div>
+
+<div class="main">
+
+    <div class="title">
+
+        About AI Intrusion Detection System
+
+    </div>
+
+    <div class="section">
+
+        <h2>Project Overview</h2>
+
+        <p>
+
+            The AI-Based Intrusion Detection System (AI IDS) is an advanced cybersecurity monitoring platform designed to analyze real-time network traffic and identify suspicious activities using Artificial Intelligence and Machine Learning techniques.
+
+            This project combines concepts from cybersecurity, networking, web development, databases, and machine learning into a unified monitoring solution. The system continuously captures packets from the network, analyzes them, classifies traffic as normal or malicious, and visualizes the results through a modern web dashboard.
+
+            The primary objective of this project is to improve network visibility, detect potential threats early, and provide real-time monitoring capabilities through intelligent automation.
+
+        </p>
+
+    </div>
+
+    <div class="section">
+
+        <h2>Core Features</h2>
+
+        <ul class="features">
+
+            <li>✅ Real-time packet capturing using Scapy</li>
+
+            <li>✅ AI-based network intrusion detection</li>
+
+            <li>✅ Live monitoring dashboard</li>
+
+            <li>✅ Threat severity classification</li>
+
+            <li>✅ SQLite database logging system</li>
+
+            <li>✅ Top attacker IP tracking</li>
+
+            <li>✅ Live analytics and charts</li>
+
+            <li>✅ Multi-page cybersecurity web interface</li>
+
+            <li>✅ Attack log monitoring</li>
+
+            <li>✅ Packet analysis and visualization</li>
+
+        </ul>
+
+    </div>
+
+    <div class="section">
+
+        <h2>Technologies Used</h2>
+
+        <div class="tech-grid">
+
+            <div class="tech-card">
+
+                <h3>Python</h3>
+
+                <p>Backend development and AI logic</p>
+
+            </div>
+
+            <div class="tech-card">
+
+                <h3>Flask</h3>
+
+                <p>Web framework for dashboard</p>
+
+            </div>
+
+            <div class="tech-card">
+
+                <h3>Scapy</h3>
+
+                <p>Network packet capture and analysis</p>
+
+            </div>
+
+            <div class="tech-card">
+
+                <h3>SQLite</h3>
+
+                <p>Database for attack log storage</p>
+
+            </div>
+
+            <div class="tech-card">
+
+                <h3>Machine Learning</h3>
+
+                <p>Threat prediction and detection</p>
+
+            </div>
+
+            <div class="tech-card">
+
+                <h3>Chart.js</h3>
+
+                <p>Visualization and analytics graphs</p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="section">
+
+        <h2>How The System Works</h2>
+
+        <p>
+
+            The IDS continuously monitors incoming and outgoing network packets through packet sniffing techniques. Captured packets are processed to extract important network features such as source IP address, destination IP address, packet size, protocol type, and traffic behavior.
+
+            These extracted features are then analyzed using a Machine Learning model trained on network intrusion datasets. The model predicts whether the traffic is normal or malicious. Once an attack is detected, the system logs the information into the database and immediately updates the web dashboard with live alerts and analytics.
+
+            This process allows administrators to monitor network activities efficiently and identify suspicious behavior in real time.
+
+        </p>
+
+    </div>
+
+    <div class="section">
+
+        <h2>Future Enhancements</h2>
+
+        <ul class="features">
+
+            <li>🚀 Deep Learning-based anomaly detection</li>
+
+            <li>🚀 Geo-location tracking of attackers</li>
+
+            <li>🚀 Email and SMS threat alerts</li>
+
+            <li>🚀 Role-based authentication system</li>
+
+            <li>🚀 Cloud deployment support</li>
+
+            <li>🚀 Advanced threat intelligence integration</li>
+
+            <li>🚀 Automated firewall blocking</li>
+
+            <li>🚀 PDF and CSV report generation</li>
+
+        </ul>
+
+    </div>
+
+    <div class="footer">
+
+        AI Powered Intrusion Detection System • Cybersecurity Monitoring Platform
+
+    </div>
+
+</div>
+
+</body>
+
+</html>

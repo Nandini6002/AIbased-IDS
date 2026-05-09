@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<title>Packets</title>
+
+<style>
+
+body{
+
+    background:#020617;
+
+    color:white;
+
+    font-family:Arial;
+
+    padding:30px;
+}
+
+h1{
+
+    color:#00ff99;
+}
+
+table{
+
+    width:100%;
+
+    border-collapse:collapse;
+
+    margin-top:20px;
+}
+
+th,td{
+
+    padding:15px;
+
+    border:1px solid #1e293b;
+
+    text-align:center;
+}
+
+th{
+
+    background:#00ff99;
+
+    color:black;
+}
+
+tr{
+
+    background:#111827;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<h1>Live Packet Monitor</h1>
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Source IP</th>
+<th>Destination IP</th>
+<th>Protocol</th>
+<th>Packet Size</th>
+<th>Status</th>
+
+</tr>
+
+</thead>
+
+<tbody id="packetTable">
+
+</tbody>
+
+</table>
+
+<script>
+
+async function loadPackets(){
+
+    const response = await fetch('/get_packets');
+
+    const data = await response.json();
+
+    const table =
+    document.getElementById("packetTable");
+
+    table.innerHTML = "";
+
+    data.forEach(packet => {
+
+        table.innerHTML += `
+
+        <tr>
+
+        <td>${packet.source_ip}</td>
+        <td>${packet.destination_ip}</td>
+        <td>${packet.protocol}</td>
+        <td>${packet.packet_size}</td>
+        <td>${packet.status}</td>
+
+        </tr>
+
+        `;
+
+    });
+
+}
+
+setInterval(loadPackets,2000);
+
+loadPackets();
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Threat Analytics</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+
+<div class="navbar">
+<div class="logo">AI IDS</div>
+<div class="nav-links">
+<a href="/">Dashboard</a>
+<a href="/logs">Logs</a>
+<a href="/packets">Packets</a>
+<a href="/analytics">Analytics</a>
+<a href="/settings">Settings</a>
+<a href="/about">About</a>
+</div>
+</div>
+
+<h1 class="page-title">Threat Analytics</h1>
+
+<div class="container">
+
+<div class="card">
+
+<canvas id="analyticsChart"></canvas>
+
+</div>
+
+</div>
+
+<script>
+
+const ctx = document.getElementById('analyticsChart');
+
+new Chart(ctx, {
+
+    type:'bar',
+
+    data:{
+
+        labels:['DDoS','Port Scan','Brute Force','Bot'],
+
+        datasets:[{
+
+            label:'Detected Attacks',
+
+            data:[12,8,4,6],
+
+            backgroundColor:[
+                '#00ff99',
+                '#ff4d4d',
+                '#38bdf8',
+                '#facc15'
+            ]
+        }]
+    }
+});
+
+</script>
+
+</body>
+</html>

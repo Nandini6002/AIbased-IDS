@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Settings</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+<body>
+
+<div class="navbar">
+<div class="logo">AI IDS</div>
+<div class="nav-links">
+<a href="/">Dashboard</a>
+<a href="/logs">Logs</a>
+<a href="/packets">Packets</a>
+<a href="/analytics">Analytics</a>
+<a href="/settings">Settings</a>
+<a href="/about">About</a>
+</div>
+</div>
+
+<h1 class="page-title">Settings</h1>
+
+<div class="container">
+
+<div class="card">
+
+<h2>System Settings</h2>
+
+<br>
+
+<label>Enable Alerts</label>
+<input type="checkbox" checked>
+
+<br><br>
+
+<label>Threat Sensitivity</label>
+<select>
+<option>Low</option>
+<option>Medium</option>
+<option>High</option>
+</select>
+
+<br><br>
+
+<button>Save Settings</button>
+
+</div>
+
+</div>
+
+</body>
+</html>
