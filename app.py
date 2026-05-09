@@ -1,5 +1,3 @@
-# FILE: app.py
-
 from flask import (
     Flask,
     render_template,
@@ -11,6 +9,7 @@ from flask import (
 
 import sqlite3
 import secrets
+import os
 
 from flask_login import (
 
@@ -33,6 +32,50 @@ from werkzeug.security import (
 app = Flask(__name__)
 
 app.secret_key = "supersecretkey"
+
+# ---------------- DATABASE SETUP ----------------
+
+if not os.path.exists("ids.db"):
+
+    conn = sqlite3.connect("ids.db")
+
+    cursor = conn.cursor()
+
+    cursor.execute("""
+
+    CREATE TABLE users (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT,
+        username TEXT UNIQUE,
+        password TEXT,
+        api_key TEXT
+
+    )
+
+    """)
+
+    cursor.execute("""
+
+    CREATE TABLE logs (
+
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER,
+        source_ip TEXT,
+        destination_ip TEXT,
+        protocol TEXT,
+        packet_size INTEGER,
+        status TEXT,
+        severity TEXT,
+        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP
+
+    )
+
+    """)
+
+    conn.commit()
+
+    conn.close()
 
 # ---------------- LOGIN MANAGER ----------------
 
@@ -73,30 +116,29 @@ def home():
 
 # ---------------- LOGIN ----------------
 
-@app.route("/login", methods=["GET","POST"])
+@app.route("/login", methods=["GET", "POST"])
 def login():
 
     error = None
 
     if request.method == "POST":
 
-        username = request.form["username"]
+        username = request.form.get("username")
+        password = request.form.get("password")
 
-        password = request.form["password"]
-
-        conn = sqlite3.connect("database/ids.db")
+        conn = sqlite3.connect("ids.db")
 
         cursor = conn.cursor()
 
         cursor.execute("""
 
-        SELECT id,password
+        SELECT id, password
 
         FROM users
 
         WHERE username=?
 
-        """,(username,))
+        """, (username,))
 
         user = cursor.fetchone()
 
@@ -119,20 +161,17 @@ def login():
 
 # ---------------- SIGNUP ----------------
 
-@app.route("/signup", methods=["GET","POST"])
+@app.route("/signup", methods=["GET", "POST"])
 def signup():
 
     error = None
 
     if request.method == "POST":
 
-        email = request.form["email"]
-
-        username = request.form["username"]
-
-        password = request.form["password"]
-
-        confirm = request.form["confirm"]
+        email = request.form.get("email")
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirm = request.form.get("confirm")
 
         if password != confirm:
 
@@ -143,7 +182,7 @@ def signup():
                 error=error
             )
 
-        conn = sqlite3.connect("database/ids.db")
+        conn = sqlite3.connect("ids.db")
 
         cursor = conn.cursor()
 
@@ -156,7 +195,7 @@ def signup():
         WHERE username=?
         OR email=?
 
-        """,(username,email))
+        """, (username, email))
 
         existing = cursor.fetchone()
 
@@ -186,9 +225,9 @@ def signup():
 
         )
 
-        VALUES (?,?,?,?)
+        VALUES (?, ?, ?, ?)
 
-        """,(
+        """, (
 
             email,
             username,
@@ -272,7 +311,7 @@ def about():
 @login_required
 def api_key():
 
-    conn = sqlite3.connect("database/ids.db")
+    conn = sqlite3.connect("ids.db")
 
     cursor = conn.cursor()
 
@@ -284,15 +323,15 @@ def api_key():
 
     WHERE id=?
 
-    """,(current_user.id,))
+    """, (current_user.id,))
 
-    key = cursor.fetchone()[0]
+    key = cursor.fetchone()
 
     conn.close()
 
     return render_template(
         "api_key.html",
-        api_key=key
+        api_key=key[0] if key else "No API Key"
     )
 
 # ---------------- DOWNLOAD AGENT ----------------
@@ -301,7 +340,7 @@ def api_key():
 @login_required
 def download_agent():
 
-    conn = sqlite3.connect("database/ids.db")
+    conn = sqlite3.connect("ids.db")
 
     cursor = conn.cursor()
 
@@ -313,13 +352,13 @@ def download_agent():
 
     WHERE id=?
 
-    """,(current_user.id,))
+    """, (current_user.id,))
 
     api_key = cursor.fetchone()[0]
 
     conn.close()
 
-    with open("agents/agent_template.py","r") as f:
+    with open("agents/agent_template.py", "r") as f:
 
         content = f.read()
 
@@ -330,7 +369,7 @@ def download_agent():
 
     output_path = "agents/generated_agent.py"
 
-    with open(output_path,"w") as f:
+    with open(output_path, "w") as f:
 
         f.write(content)
 
@@ -348,7 +387,7 @@ def receive_log():
 
     api_key = data.get("api_key")
 
-    conn = sqlite3.connect("database/ids.db")
+    conn = sqlite3.connect("ids.db")
 
     cursor = conn.cursor()
 
@@ -360,7 +399,7 @@ def receive_log():
 
     WHERE api_key=?
 
-    """,(api_key,))
+    """, (api_key,))
 
     user = cursor.fetchone()
 
@@ -370,9 +409,9 @@ def receive_log():
 
         return jsonify({
 
-            "error":"Invalid API key"
+            "error": "Invalid API key"
 
-        }),401
+        }), 401
 
     user_id = user[0]
 
@@ -395,12 +434,12 @@ def receive_log():
     """, (
 
         user_id,
-        data["source_ip"],
-        data["destination_ip"],
-        data["protocol"],
-        data["packet_size"],
-        data["status"],
-        data["severity"]
+        data.get("source_ip"),
+        data.get("destination_ip"),
+        data.get("protocol"),
+        data.get("packet_size"),
+        data.get("status"),
+        data.get("severity")
 
     ))
 
@@ -410,7 +449,7 @@ def receive_log():
 
     return jsonify({
 
-        "message":"Log received"
+        "message": "Log received"
 
     })
 
@@ -420,7 +459,7 @@ def receive_log():
 @login_required
 def get_logs():
 
-    conn = sqlite3.connect("database/ids.db")
+    conn = sqlite3.connect("ids.db")
 
     cursor = conn.cursor()
 
@@ -443,7 +482,7 @@ def get_logs():
 
     LIMIT 50
 
-    """,(current_user.id,))
+    """, (current_user.id,))
 
     rows = cursor.fetchall()
 
@@ -473,7 +512,7 @@ def get_logs():
 @login_required
 def stats():
 
-    conn = sqlite3.connect("database/ids.db")
+    conn = sqlite3.connect("ids.db")
 
     cursor = conn.cursor()
 
@@ -486,7 +525,7 @@ def stats():
     WHERE status='Attack Detected'
     AND user_id=?
 
-    """,(current_user.id,))
+    """, (current_user.id,))
 
     attacks = cursor.fetchone()[0]
 
@@ -499,7 +538,7 @@ def stats():
     WHERE status='Normal Traffic'
     AND user_id=?
 
-    """,(current_user.id,))
+    """, (current_user.id,))
 
     normal = cursor.fetchone()[0]
 
@@ -518,7 +557,7 @@ def stats():
 @login_required
 def top_attackers():
 
-    conn = sqlite3.connect("database/ids.db")
+    conn = sqlite3.connect("ids.db")
 
     cursor = conn.cursor()
 
@@ -539,7 +578,7 @@ def top_attackers():
 
     LIMIT 5
 
-    """,(current_user.id,))
+    """, (current_user.id,))
 
     rows = cursor.fetchall()
 
@@ -552,7 +591,6 @@ def top_attackers():
         attackers.append({
 
             "ip": row[0],
-
             "count": row[1]
 
         })
@@ -565,7 +603,7 @@ def top_attackers():
 @login_required
 def get_packets():
 
-    conn = sqlite3.connect("database/ids.db")
+    conn = sqlite3.connect("ids.db")
 
     cursor = conn.cursor()
 
@@ -586,7 +624,7 @@ def get_packets():
 
     LIMIT 50
 
-    """,(current_user.id,))
+    """, (current_user.id,))
 
     rows = cursor.fetchall()
 
@@ -614,6 +652,5 @@ if __name__ == "__main__":
 
     app.run(
         host="0.0.0.0",
-        port=5000,
-        debug=True
+        port=5000
     )
